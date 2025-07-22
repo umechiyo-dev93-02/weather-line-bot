@@ -111,6 +111,21 @@
     // ✅ 都市に応じたURLを生成
     const URL = `https://api.openweathermap.org/data/2.5/weather?q=${selectedCity},jp&appid=6e3aed59a90a1868fc4614f47dec736a&units=metric&lang=ja`;
 
+    // 都市名の変換マップ（英語 → 日本語）
+    const cityNameMap = {
+      tokyo: "東京",
+      osaka: "大阪",
+      himeji: "姫路",
+      kobe: "神戸"
+    };
+
+    // 選択された都市名（API用の英語）
+    const selectedCity = document.getElementById("city").value;
+
+    // 日本語の表示用都市名を取得
+    const displayCity = cityNameMap[selectedCity] || selectedCity; // 万一対応がない都市ならそのまま
+
+
     fetch(URL)
       .then(response => response.json())
       .then(data => {
@@ -127,7 +142,7 @@
 
         document.getElementById("weather").innerHTML =
           `📅 ${formattedDate}<br>
-          🏙️ 地域：${selectedCity}<br>
+          🏙️ 地域：${displayCity}<br>
           🌤 天気：${weather}<br>
           🌡 気温：${temp}℃<br>
           💧 湿度：${humidity}%`;
