@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>現在の天気</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      color: #333;
+      text-align: center;
+      margin: 2em;
+      font-size: 18px;
+      padding: 1.5em;
+      line-height: 1.6;
+      background-color: #f5f5f5;
+  }
+    
+    .weather-card {
+      background-color: #eaf6ff; /* 水色ベース */
+      padding: 1.5em;
+      border-radius: 12px;
+      max-width: 99%;
+      margin: 1.5em auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    /* PC向け（広い画面では幅を固定） */
+    @media (min-width: 768px) {
+      .weather-card {
+        max-width: 375px;  /* 好みに応じて調整可能 */
+        padding:1.5em;
+        box-sizing: border-box;  /* ← これが鍵！ */
+      }
+    }
+
+    .weather-card h2 {
+      font-size: 1em;
+      margin-top: 0;
+    }
+
+    .weather-card p {
+      font-size: 1.2em;
+      margin: 0;
+    }
+
+    #weather {
+      font-size: 0.95em;
+      margin-top: 1.2em;
+      padding: 0.8em;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    #city-select {
+      margin: 1em 0;
+      padding: 0.4em;
+      font-size: 1em;
+      border-radius: 4px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 0.8em 1.2em;
+      margin-top: 1em;
+      border: none;
+      background-color: #3b82f6;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+  
+  </style>
+
+<script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+</head>
+<body>
+  <div class="weather-card">
+    <h2 id="date">情報を取得するには<br>下のボタンを押してください</h2>
+    <label for="city-select">都市を選んで<br>天気を表示：</label>
+    <select id="city-select">
+      <option value="himeji">姫路</option>
+      <option value="kobe">神戸</option>
+      <option value="osaka">大阪</option>
+      <option value="tokyo">東京</option>
+    </select>
+    <button id="weatherButton" onclick="getWeather()">表示</button>
+
+    <div id="weather"></div>
+    
+  </div>
+  
+  <script>
+  function getWeather() {
+    const button = document.getElementById("weatherButton");
+    button.disabled = true;
+    button.innerText = "取得中...";
+    document.getElementById("weather").innerText = "お天気情報を取得しています…";
+
+    // ✅ 選択された都市を取得
+    const selectedCity = document.getElementById("city-select").value;
+
+    // ✅ 都市に応じたURLを生成
+    const URL = `https://api.openweathermap.org/data/2.5/weather?q=${selectedCity},jp&appid=6e3aed59a90a1868fc4614f47dec736a&units=metric&lang=ja`;
+
+    fetch(URL)
+      .then(response => response.json())
+      .then(data => {
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        const date = today.getDate();
+        const days = ['日', '月', '火', '水', '木', '金', '土'];
+        const day = days[today.getDay()];
+        const formattedDate = `${month}月${date}日（${day}）`;
+
+        const weather = data.weather[0].description;
+        const temp = data.main.temp.toFixed(1);
+        const humidity = data.main.humidity;
+
+        document.getElementById("weather").innerHTML =
+          `📅 ${formattedDate}<br>
+          🏙️ 地域：${selectedCity}<br>
+          🌤 天気：${weather}<br>
+          🌡 気温：${temp}℃<br>
+          💧 湿度：${humidity}%`;
+      })
+      .catch(error => {
+        console.error("エラーが発生しました：", error);
+        document.getElementById("weather").innerText = "天気情報の取得に失敗しました。";
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.innerText = "表示";
+      });
+  }
+
+
+</script>
+</body>
+</html>
